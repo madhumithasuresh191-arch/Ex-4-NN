@@ -1,6 +1,6 @@
 
-<H3>ENTER YOUR NAME</H3>
-<H3>ENTER YOUR REGISTER NO.</H3>
+<H3>ENTER YOUR NAME</H3> S Madhumitha
+<H3>ENTER YOUR REGISTER NO.</H3> 212225040217
 <H3>EX. NO.4</H3>
 <H3>DATE:</H3>
 <H1 ALIGN =CENTER>Implementation of MLP with Backpropagation for Multiclassification</H1>
@@ -116,11 +116,129 @@ Normalize our dataset.
 
 <H3>Program:</H3> 
 
-Insert your code here
+
+~~~
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, precision_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+from sklearn.metrics import ConfusionMatrixDisplay
+
+df = pd.read_csv('/content/breast_cancer_dataset.csv')
+
+df = df.drop_duplicates()
+df = df.fillna(df.median(numeric_only=True))
+
+median_radius = df.loc[df['target'] == 0, 'mean radius'].median()
+
+df['target'] = np.where(
+    df['target'] == 1, 0,
+    np.where(df['mean radius'] < median_radius, 1, 2)
+)
+
+X = df.drop('target', axis=1)
+y = df['target']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+scaler = StandardScaler()
+
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+mlp = MLPClassifier(
+    hidden_layer_sizes=(64, 32),
+    activation='relu',
+    solver='adam',
+    learning_rate_init=0.001,
+    max_iter=1000,
+    random_state=42,
+    early_stopping=True
+)
+
+mlp.fit(X_train, y_train)
+
+y_pred = mlp.predict(X_test)
+
+print("\nPredicted Values:")
+print(y_pred)
+
+cm = confusion_matrix(y_test, y_pred)
+
+print("\nConfusion Matrix:")
+print(cm)
+
+print("\nClassification Report:")
+print(classification_report(
+    y_test,
+    y_pred,
+    target_names=[
+        'Benign',
+        'Malignant-Lower',
+        'Malignant-Higher'
+    ],
+    zero_division=0
+))
+
+accuracy = accuracy_score(y_test, y_pred)
+
+precision = precision_score(
+    y_test, y_pred, average='macro', zero_division=0
+)
+
+print("Accuracy:", accuracy * 100, "%")
+print("Precision:", precision * 100, "%")
+
+disp = ConfusionMatrixDisplay(
+    confusion_matrix=cm,
+    display_labels=[
+        'Benign',
+        'Malignant-Lower',
+        'Malignant-Higher'
+    ]
+)
+
+disp.plot(cmap='Blues', values_format='d')
+plt.title("MLP Confusion Matrix")
+plt.show()
+
+plt.figure(figsize=(8, 5))
+plt.plot(mlp.loss_curve_)
+plt.title("MLP Training Loss")
+plt.xlabel("Iterations")
+plt.ylabel("Loss")
+plt.grid(True)
+plt.show()
+
+plt.figure(figsize=(7, 5))
+
+metrics = ['Accuracy', 'Precision']
+values = [accuracy * 100, precision * 100]
+
+plt.bar(metrics, values)
+plt.title("MLP Model Performance")
+plt.ylabel("Percentage")
+plt.ylim(0, 100)
+
+for i, v in enumerate(values):
+    plt.text(i, v + 1, f'{v:.2f}%', ha='center')
+
+plt.show()
+
+print("\nMLP Multiclassification Completed Successfully!")
+~~~
 
 <H3>Output:</H3>
-
-Show your results here
+<img width="1920" height="1020" alt="Screenshot 2026-11-24 143454" src="https://github.com/user-attachments/assets/6ace09ea-78ad-423d-b083-4d2ca707924d" />
+<img width="1920" height="1020" alt="Screenshot 2026-11-24 143503" src="https://github.com/user-attachments/assets/a867ced3-63f7-460f-9058-943048dd6bb5" />
+<img width="1920" height="1020" alt="Screenshot 2026-11-24 143513" src="https://github.com/user-attachments/assets/bc2e60fe-ac07-4b3c-b0ca-0a9831d7e226" />
 
 <H3>Result:</H3>
 Thus, MLP is implemented for multi-classification using python.
